@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f5;
+  --foreground: #1f0b2b;
+  --card-bg: #ffffff;
+  --border-color: rgba(226, 212, 240, 0.7);
+  --accent-purple: #8b5cf6;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body {
+  background-color: #faf8f5 !important;
+  color: #1f0b2b !important;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Premium elevated card styling with restrained shadow & border */
+.beauty-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 212, 240, 0.65);
+  box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.07), 0 4px 12px -4px rgba(0, 0, 0, 0.03);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.beauty-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.beauty-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -12px rgba(124, 58, 237, 0.12), 0 6px 16px -4px rgba(0, 0, 0, 0.04);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+/* Elegant Purple & Warm Rose Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #7e22ce 0%, #9333ea 50%, #e11d48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Subtle cosmetic blurred ambient background glow for Hero area */
+.hero-glow {
+  background: 
+    radial-gradient(ellipse 60% 40% at 50% 15%, rgba(233, 213, 255, 0.45) 0%, rgba(251, 207, 232, 0.25) 45%, transparent 75%),
+    radial-gradient(circle at 10% 40%, rgba(243, 232, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 90% 30%, rgba(254, 226, 226, 0.3) 0%, transparent 50%);
+}
+
+/* Custom Soft Purple Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.5);
 }
