@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { RecommendationService } from '../services/recommendation.service';
 
 export class RecommendationController {
   /**
    * Main API endpoint: POST /api/recommendations
    */
-  static async getRecommendations(req: Request, res: Response): Promise<void> {
+  static async getRecommendations(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { query } = req.body;
 
@@ -17,13 +17,13 @@ export class RecommendationController {
         return;
       }
 
-      const result = await RecommendationService.getRecommendations(query);
+      // Sanitize excessively long input (limit to max 1000 characters)
+      const sanitizedQuery = query.trim().slice(0, 1000);
+
+      const result = await RecommendationService.getRecommendations(sanitizedQuery);
       res.status(200).json(result);
     } catch (err: any) {
-      res.status(500).json({
-        success: false,
-        error: err.message || 'Internal server error processing recommendation request.',
-      });
+      next(err);
     }
   }
 }

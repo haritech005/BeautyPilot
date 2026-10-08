@@ -10,6 +10,11 @@ const app: Express = express();
 app.use(cors());
 app.use(express.json());
 
+// System Health Check Endpoint
+app.get('/api/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', service: 'BeautyPilot Backend' });
+});
+
 // Product Catalog REST API Endpoints
 app.use('/api/products', productRoutes);
 
