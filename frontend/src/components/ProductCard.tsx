@@ -27,6 +27,7 @@ export function ProductCard({
 }: Props) {
   const { product, score, explanation } = rankedProduct;
   const badge = BADGE_TAGS[rankIndex] || BADGE_TAGS[2];
+  const [imgError, setImgError] = React.useState(false);
 
   return (
     <div className="bg-white rounded-3xl border border-purple-200/80 p-6 shadow-xl shadow-purple-900/5 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 flex flex-col justify-between space-y-5 relative group">
@@ -43,19 +44,18 @@ export function ProductCard({
         onClick={() => onViewDetails(rankedProduct)}
         className="w-full h-48 rounded-2xl bg-gradient-to-b from-purple-50/50 to-white border border-purple-100 flex items-center justify-center overflow-hidden cursor-pointer group-hover:scale-[1.02] transition-transform duration-300 relative"
       >
-        {product.imageUrl ? (
+        {product.imageUrl && !imgError ? (
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-contain p-3"
-            onError={(e) => {
-              (e.target as HTMLElement).style.display = 'none';
-            }}
+            className="w-full h-full object-contain p-2 hover:scale-105 transition-transform duration-300"
+            onError={() => setImgError(true)}
           />
-        ) : null}
-        <div className="text-purple-300 flex items-center justify-center">
-          <FlaskConical className="w-14 h-14" />
-        </div>
+        ) : (
+          <div className="text-purple-300 flex items-center justify-center">
+            <FlaskConical className="w-14 h-14" />
+          </div>
+        )}
 
         {/* Quick Hover Overlay */}
         <div className="absolute inset-0 bg-purple-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

@@ -17,7 +17,7 @@ const sampleProducts = [
     fragranceFree: true,
     rating: 4.6,
     description: 'An ultra-lightweight gel moisturizer designed specifically for oily skin. Controls excess sebum while keeping skin plump.',
-    imageUrl: 'https://images.unsplash.com/photo-1608248597379-880c85c25785?auto=format&fit=crop&q=80&w=400',
+    imageUrl: 'https://cdn.grofers.com/da/cms-assets/cms/product/rc-upload-1775044979893-459.jpg',
   },
   {
     name: 'Barrier Repair Deep Moisture Cream',
@@ -197,7 +197,7 @@ const sampleProducts = [
     fragranceFree: true,
     rating: 4.5,
     description: 'High strength niacinamide moisturizer focused on shrinking enlarged pores and controlling T-zone shine.',
-    imageUrl: 'https://images.unsplash.com/photo-1608248597379-880c85c25785?auto=format&fit=crop&q=80&w=400',
+    imageUrl: 'https://assets.myntassets.com/h_1440,q_75,w_1080/v1/assets/images/2025/DECEMBER/31/OMTcTH0I_cf151e431b87487d99c25db4dec81fa9.jpg',
   },
   {
     name: 'Daily UV Defense Moisturizer SPF 30',

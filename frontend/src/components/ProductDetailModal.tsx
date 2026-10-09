@@ -12,6 +12,8 @@ interface Props {
 }
 
 export function ProductDetailModal({ rankedProduct, onClose, onToggleCompare, isCompared }: Props) {
+  const [imgError, setImgError] = React.useState(false);
+
   if (!rankedProduct) return null;
 
   const { product, score, explanation } = rankedProduct;
@@ -31,19 +33,18 @@ export function ProductDetailModal({ rankedProduct, onClose, onToggleCompare, is
         {/* Product Image & Title Header */}
         <div className="flex flex-col sm:flex-row items-center gap-6 border-b border-purple-100 pb-6">
           <div className="w-32 h-32 rounded-2xl bg-purple-50/60 border border-purple-100 flex items-center justify-center overflow-hidden shrink-0">
-            {product.imageUrl ? (
+            {product.imageUrl && !imgError ? (
               <img
                 src={product.imageUrl}
                 alt={product.name}
                 className="w-full h-full object-contain p-2 hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
+                onError={() => setImgError(true)}
               />
-            ) : null}
-            <div className="text-purple-300 flex items-center justify-center">
-              <FlaskConical className="w-12 h-12" />
-            </div>
+            ) : (
+              <div className="text-purple-300 flex items-center justify-center">
+                <FlaskConical className="w-12 h-12" />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2 text-center sm:text-left flex-1">

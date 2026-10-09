@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BeautyPilot Frontend
 
-## Getting Started
+Next.js Application for BeautyPilot AI Skincare Discovery Platform
 
-First, run the development server:
+## Overview
+The BeautyPilot frontend is built using Next.js 16 (App Router), React 19, TypeScript, and Tailwind CSS. It provides a luxury Beauty Tech interface for natural language search, candidate product cards, detailed formula drawers, and side-by-side product comparisons.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack
+- Next.js 16 (App Router, Turbopack)
+- React 19 & TypeScript
+- Tailwind CSS
+- Lucide React Icons
+
+## Component Structure
+```text
+src/
+├── app/
+│   ├── page.tsx               # Primary search console & results container page
+│   ├── layout.tsx             # Root layout with warm ivory background & typography
+│   └── globals.css            # Ambient silk glows & design system tokens
+├── components/
+│   ├── Header.tsx             # Brand header navigation bar
+│   ├── SearchInput.tsx        # Natural language query input console
+│   ├── LoadingSteps.tsx       # Animated 3-step consultation loading indicator
+│   ├── ProductCard.tsx        # Product recommendation cards
+│   ├── ProductDetailModal.tsx # Detailed formula drawer / modal
+│   ├── ComparisonModal.tsx    # Side-by-side product comparison modal
+│   ├── RecommendationResults.tsx # Results container & comparison state coordinator
+│   └── Footer.tsx             # Page footer
+├── lib/
+│   └── api.ts                 # Typed API client for POST /api/recommendations
+└── types/
+    └── recommendation.ts      # TypeScript interfaces for API contracts & Prisma models
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup and Running
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Environment Variables
+Create `.env.local` in the `frontend` root:
+```env
+NEXT_PUBLIC_API_BASE_URL="http://localhost:5000"
+```
 
-## Learn More
+### 3. Start Development Server
+```bash
+npm run dev
+```
+Open `http://localhost:3000` in your browser.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Production Build Verification
+```bash
+npm run build
+```

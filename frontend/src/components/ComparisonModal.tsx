@@ -11,6 +11,25 @@ interface Props {
   onClearAll: () => void;
 }
 
+function ProductComparisonImage({ imageUrl, name }: { imageUrl?: string | null; name: string }) {
+  const [imgError, setImgError] = React.useState(false);
+
+  return (
+    <div className="w-full h-36 rounded-xl bg-white border border-purple-100 flex items-center justify-center overflow-hidden">
+      {imageUrl && !imgError ? (
+        <img
+          src={imageUrl}
+          alt={name}
+          className="w-full h-full object-contain p-2"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <FlaskConical className="w-10 h-10 text-purple-300" />
+      )}
+    </div>
+  );
+}
+
 export function ComparisonModal({ comparedProducts, onClose, onRemoveProduct, onClearAll }: Props) {
   if (!comparedProducts || comparedProducts.length === 0) return null;
 
@@ -72,19 +91,7 @@ export function ComparisonModal({ comparedProducts, onClose, onRemoveProduct, on
 
                 <div className="space-y-4">
                   {/* Image */}
-                  <div className="w-full h-36 rounded-xl bg-white border border-purple-100 flex items-center justify-center overflow-hidden">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-2"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    ) : null}
-                    <FlaskConical className="w-10 h-10 text-purple-300" />
-                  </div>
+                  <ProductComparisonImage imageUrl={product.imageUrl} name={product.name} />
 
                   {/* Title & Brand */}
                   <div>

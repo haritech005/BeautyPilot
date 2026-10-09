@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ShoppingBag, Sparkle } from 'lucide-react';
+import { Sparkles, ShoppingBag } from 'lucide-react';
 
 export function Header() {
   return (
@@ -10,7 +10,7 @@ export function Header() {
         {/* Refined Premium Brand Mark */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-700 via-purple-600 to-rose-500 flex items-center justify-center text-white shadow-md shadow-purple-900/10 group-hover:scale-[1.03] transition-transform duration-300">
-            <Sparkle className="w-4.5 h-4.5 fill-white text-white" />
+            <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <span className="text-xl font-serif font-bold tracking-tight text-[#1f0b2b]">
