@@ -1,4 +1,4 @@
-import { getOllamaModel, checkOllamaAvailability } from './model';
+import { callOllamaChat, checkOllamaAvailability } from './model';
 import { ExplanationSchema, ExplanationResult } from './schemas';
 import { EXPLANATION_SYSTEM_PROMPT, buildExplanationPrompt } from './prompts';
 
@@ -79,14 +79,14 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: st
 }
 
 /**
- * Generates grounded recommendation explanations using Ollama (Qwen3 4B)
+ * Generates grounded recommendation explanations using Ollama (Qwen2.5 3B)
  */
 export async function generateExplanation(
   userQuery: string,
   userRequirements: Record<string, any>,
   selectedProducts: Array<Record<string, any>>,
   alternativeProducts: Array<Record<string, any>> = [],
-  timeoutMs = 10000
+  timeoutMs = 60000
 ): Promise<ExplanationResponse> {
   if (!selectedProducts || selectedProducts.length === 0) {
     return {
@@ -102,7 +102,6 @@ export async function generateExplanation(
   // Check Ollama availability
   const health = await checkOllamaAvailability();
   if (!health.available) {
-    console.warn(`[AI Explanation Generator] Ollama unavailable (${health.error}). Using fallback explanation generator.`);
     return {
       success: true,
       data: fallbackGenerateExplanation(userQuery, userRequirements, selectedProducts, alternativeProducts),
@@ -112,34 +111,41 @@ export async function generateExplanation(
   }
 
   try {
-    const model = getOllamaModel(0.3, true);
-
-    const invokePromise = model.invoke([
-      { role: 'system', content: EXPLANATION_SYSTEM_PROMPT },
-      { role: 'user', content: buildExplanationPrompt(userQuery, userRequirements, selectedProducts, alternativeProducts) },
-    ]);
-
-    const response = await withTimeout(
-      invokePromise,
-      timeoutMs,
-      `Ollama explanation timed out after ${timeoutMs}ms`
+    const res = await callOllamaChat(
+      [
+        { role: 'system', content: EXPLANATION_SYSTEM_PROMPT },
+        { role: 'user', content: buildExplanationPrompt(userQuery, userRequirements, selectedProducts, alternativeProducts) },
+      ],
+      { temperature: 0.2, timeoutMs }
     );
 
-    const rawText = typeof response.content === 'string'
-      ? response.content
-      : JSON.stringify(response.content);
+    if (!res.success || !res.content) {
+      return {
+        success: true,
+        data: fallbackGenerateExplanation(userQuery, userRequirements, selectedProducts, alternativeProducts),
+        isFallback: true,
+        error: res.error || 'Ollama returned empty response',
+      };
+    }
 
-    let jsonString = rawText.trim();
+    const rawText = res.content.trim();
+
+    let jsonString = rawText;
     const markdownMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
     if (markdownMatch && markdownMatch[1]) {
       jsonString = markdownMatch[1].trim();
+    } else {
+      const firstBrace = jsonString.indexOf('{');
+      const lastBrace = jsonString.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+      }
     }
 
     let parsedData: any;
     try {
       parsedData = JSON.parse(jsonString);
     } catch (parseErr) {
-      console.warn(`[AI Explanation Generator] Failed to parse JSON response from Ollama. Using fallback.`);
       return {
         success: true,
         data: fallbackGenerateExplanation(userQuery, userRequirements, selectedProducts, alternativeProducts),
@@ -150,7 +156,6 @@ export async function generateExplanation(
 
     const validatedResult = ExplanationSchema.safeParse(parsedData);
     if (!validatedResult.success) {
-      console.warn(`[AI Explanation Generator] Validation failed: ${validatedResult.error.message}`);
       return {
         success: true,
         data: fallbackGenerateExplanation(userQuery, userRequirements, selectedProducts, alternativeProducts),
@@ -165,7 +170,6 @@ export async function generateExplanation(
       isFallback: false,
     };
   } catch (err: any) {
-    console.warn(`[AI Explanation Generator] Ollama execution fallback triggered: ${err.message || String(err)}`);
     return {
       success: true,
       data: fallbackGenerateExplanation(userQuery, userRequirements, selectedProducts, alternativeProducts),

@@ -1,4 +1,4 @@
-import { getOllamaModel, checkOllamaAvailability } from './model';
+import { callOllamaChat, checkOllamaAvailability } from './model';
 import { RequirementExtractionSchema, RequirementExtractionResult } from './schemas';
 import { EXTRACTION_SYSTEM_PROMPT, buildExtractionPrompt } from './prompts';
 
@@ -101,9 +101,9 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: st
 }
 
 /**
- * Extracts structured requirements using Ollama (Qwen3 4B) with fallback error handling
+ * Extracts structured requirements using Ollama (Qwen2.5 3B) with fallback error handling
  */
-export async function extractRequirements(query: string, timeoutMs = 8000): Promise<ExtractionResponse> {
+export async function extractRequirements(query: string, timeoutMs = 35000): Promise<ExtractionResponse> {
   if (!query || typeof query !== 'string' || query.trim().length === 0) {
     return {
       success: false,
@@ -118,7 +118,6 @@ export async function extractRequirements(query: string, timeoutMs = 8000): Prom
   // Check Ollama availability first
   const health = await checkOllamaAvailability();
   if (!health.available) {
-    console.warn(`[AI Requirement Extractor] Ollama unavailable (${health.error}). Using fallback extractor.`);
     return {
       success: true,
       data: fallbackExtractRequirements(cleanQuery),
@@ -128,28 +127,36 @@ export async function extractRequirements(query: string, timeoutMs = 8000): Prom
   }
 
   try {
-    const model = getOllamaModel(0.1, true);
-
-    const invokePromise = model.invoke([
-      { role: 'system', content: EXTRACTION_SYSTEM_PROMPT },
-      { role: 'user', content: buildExtractionPrompt(cleanQuery) },
-    ]);
-
-    const response = await withTimeout(
-      invokePromise,
-      timeoutMs,
-      `Ollama extraction timed out after ${timeoutMs}ms`
+    const res = await callOllamaChat(
+      [
+        { role: 'system', content: EXTRACTION_SYSTEM_PROMPT },
+        { role: 'user', content: buildExtractionPrompt(cleanQuery) },
+      ],
+      { temperature: 0.1, timeoutMs }
     );
 
-    const rawText = typeof response.content === 'string'
-      ? response.content
-      : JSON.stringify(response.content);
+    if (!res.success || !res.content) {
+      return {
+        success: true,
+        data: fallbackExtractRequirements(cleanQuery),
+        isFallback: true,
+        error: res.error || 'Ollama returned empty response',
+      };
+    }
+
+    const rawText = res.content.trim();
 
     // Extract JSON string
-    let jsonString = rawText.trim();
+    let jsonString = rawText;
     const markdownMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
     if (markdownMatch && markdownMatch[1]) {
       jsonString = markdownMatch[1].trim();
+    } else {
+      const firstBrace = jsonString.indexOf('{');
+      const lastBrace = jsonString.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+      }
     }
 
     // Parse JSON
@@ -157,7 +164,6 @@ export async function extractRequirements(query: string, timeoutMs = 8000): Prom
     try {
       parsedData = JSON.parse(jsonString);
     } catch (parseErr) {
-      console.warn(`[AI Requirement Extractor] Failed to parse JSON response from Ollama. Raw output:\n${rawText}`);
       return {
         success: true,
         data: fallbackExtractRequirements(cleanQuery),
@@ -169,7 +175,6 @@ export async function extractRequirements(query: string, timeoutMs = 8000): Prom
     // Validate using Zod schema
     const validatedResult = RequirementExtractionSchema.safeParse(parsedData);
     if (!validatedResult.success) {
-      console.warn(`[AI Requirement Extractor] Validation failed for AI output: ${validatedResult.error.message}`);
       return {
         success: true,
         data: fallbackExtractRequirements(cleanQuery),
@@ -184,7 +189,6 @@ export async function extractRequirements(query: string, timeoutMs = 8000): Prom
       isFallback: false,
     };
   } catch (err: any) {
-    console.warn(`[AI Requirement Extractor] Ollama execution fallback triggered: ${err.message || String(err)}`);
     return {
       success: true,
       data: fallbackExtractRequirements(cleanQuery),

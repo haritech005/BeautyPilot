@@ -40,18 +40,18 @@ Your job is to explain why specific products were recommended to a user based on
 
 CRITICAL CONSTRAINTS:
 1. You MUST ONLY discuss the exact products provided in the context below. DO NOT invent or mention any products not listed in the provided data.
-2. Explain clearly in simple, understandable terms why each chosen product is suitable for the user's specific skin type, budget, texture preference, or concerns.
-3. Compare the recommended product against alternative candidates provided in the context, highlighting why the recommended product was selected over others.
+2. Keep each "whyRecommended", "overview", and "comparisonNotes" extremely concise (1 short sentence max per field).
+3. Compare the recommended product against alternative candidates provided in the context.
 
 Return ONLY a valid JSON object matching this schema:
 {
-  "overview": "Summary explanation of why these recommendations fit the user request",
+  "overview": "Short 1-sentence summary",
   "productExplanations": [
     {
       "productId": "ID of the product",
       "productName": "Name of the product",
-      "whyRecommended": "Clear explanation of why this product fits their request",
-      "comparisonNotes": "Why this product was chosen over alternative candidate products",
+      "whyRecommended": "1 short sentence explanation",
+      "comparisonNotes": "1 short sentence comparison",
       "keyBenefits": ["Benefit 1", "Benefit 2"]
     }
   ]
@@ -66,14 +66,28 @@ export function buildExplanationPrompt(
   selectedProducts: Array<Record<string, any>>,
   alternativeProducts: Array<Record<string, any>> = []
 ): string {
+  const minimalSelected = selectedProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    brand: p.brand,
+    price: p.price,
+    rating: p.rating,
+    skinTypes: p.skinTypes,
+    texture: p.texture,
+  }));
+
+  const minimalAlternatives = alternativeProducts.slice(0, 2).map((p) => ({
+    id: p.id,
+    name: p.name,
+    brand: p.brand,
+    price: p.price,
+    rating: p.rating,
+  }));
+
   return `User Query: "${userQuery}"
-Extracted Requirements: ${JSON.stringify(userRequirements, null, 2)}
+User Requirements: ${JSON.stringify(userRequirements)}
+Selected Products: ${JSON.stringify(minimalSelected)}
+Alternative Candidates: ${JSON.stringify(minimalAlternatives)}
 
-Selected Recommended Products:
-${JSON.stringify(selectedProducts, null, 2)}
-
-Alternative Candidate Products (for comparison):
-${JSON.stringify(alternativeProducts, null, 2)}
-
-Provide grounded explanations comparing why the selected products were chosen over the alternative candidates for this user request. Return valid JSON only.`;
+Provide grounded explanations comparing why selected products were chosen over alternatives. Return valid JSON only.`;
 }

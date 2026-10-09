@@ -3,7 +3,7 @@ import { Sparkles, Heart } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-purple-200/50 py-8 bg-[#faf8f5]">
+    <footer className="w-full border-t border-purple-200/50 py-4 bg-[#faf8f5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         
         {/* Left: Brand */}
